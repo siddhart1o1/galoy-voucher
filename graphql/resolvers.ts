@@ -85,6 +85,7 @@ const resolvers = {
         }
         return data;
       } catch (error) {
+        console.log(error)
         createCustomError(messageCode.INTERNAL_SERVER_ERROR, error as Error);
       }
     },
@@ -101,7 +102,10 @@ const resolvers = {
           );
           const errorMessage = errorArrayToString(result.errors);
           if (errorMessage) {
-            throw new Error(errorMessage);
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              errorMessage
+            );
           }
           return { fees: result.data.onChainTxFee.amount };
         } else {
@@ -113,7 +117,10 @@ const resolvers = {
           );
           const errorMessage = errorArrayToString(result.errors);
           if (errorMessage) {
-            throw new Error(errorMessage);
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              errorMessage
+            );
           }
           return { fees: result.data.onChainUsdTxFee.amount };
         }
@@ -195,10 +202,16 @@ const resolvers = {
           );
           const final_amount = amount - fees_result.data.onChainTxFee.amount;
           if (final_amount <= 0) {
-            throw new Error("Amount is less than fees");
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              "Amount is less than fees"
+            );
           }
           if (status === "PAID") {
-            throw new Error("Payment already sent");
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              "Payment already sent"
+            );
           }
           await updateWithdrawLinkStatus(id, "PAID");
           const result = await sendOnChainPaymentBTC(
@@ -209,7 +222,10 @@ const resolvers = {
           );
           const errorMessage = errorArrayToString(result.errors);
           if (errorMessage) {
-            throw new Error(errorMessage);
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              errorMessage
+            );
           }
           return {
             status: result.data.onChainPaymentSend.status,
@@ -223,10 +239,16 @@ const resolvers = {
           );
           const final_amount = amount - fees_result.data.onChainUsdTxFee.amount;
           if (final_amount <= 0) {
-            throw new Error("Amount is less than fees");
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              "Amount is less than fees"
+            );
           }
           if (status === "PAID") {
-            throw new Error("Payment already sent");
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              "Payment already sent"
+            );
           }
           await updateWithdrawLinkStatus(id, "PAID");
           const result = await sendOnChainPaymentUSD(
@@ -237,7 +259,10 @@ const resolvers = {
           );
           const errorMessage = errorArrayToString(result.errors);
           if (errorMessage) {
-            throw new Error(errorMessage);
+            throw new CustomError(
+              messageCode.BAD_USER_INPUT.messageCode,
+              errorMessage
+            );
           }
           return {
             status: result.data.onChainUsdPaymentSend.status,
